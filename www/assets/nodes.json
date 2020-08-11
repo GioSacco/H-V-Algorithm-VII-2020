@@ -1,0 +1,33 @@
+[
+    {
+    	"id": 0,
+        "value": 0,
+        "left": {
+        	"id": 2,
+            "value": 2,
+            "left": {
+                "id": 5,
+                "value": 5,
+                "left": null,
+                "right": null
+            },
+            "right": {
+            	"id": 3,
+                "value": 3,
+                "left": null,
+                "right": null
+            }
+        },
+        "right": {
+        	"id": 1,
+            "value": 1,
+            "left": {
+                "id": 4,
+                "value": 4,
+                "left": null,
+                "right": null
+            },
+            "right": null
+        }
+    }
+]

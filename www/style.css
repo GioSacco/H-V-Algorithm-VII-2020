@@ -1,0 +1,10 @@
+body {
+}
+
+svg {
+    position: absolute;
+}
+
+svg g {
+    cursor: pointer;
+}
