@@ -1,2 +1,3 @@
-# INFOVIS_submarines
-Project carried out for the Information Display exam. Year 2019/2020
+# INFOVIS H-W Algorithm
+
+Progetto finale esame di Visualizzazione Delle Informazioni 2020
