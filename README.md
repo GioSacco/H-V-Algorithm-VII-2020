@@ -1,3 +1,3 @@
-# INFOVIS H-W Algorithm
+# H-W Algorithm
 
-Progetto finale esame di Visualizzazione Delle Informazioni 2020
+Progetto finale dell'esame di Visualizzazione Delle Informazioni 2020
