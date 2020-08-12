@@ -10,13 +10,14 @@ var leftSubTree = [];
 var rightSubTree = [];
 var inputTree = [];
 var postOrderTree = [];
+var preOrderTree = [];
 var root = null;
 
 // VARIABILI PER H-V DRAWING
 //
-var hvDrawingTree = [];
-var leftDepth = 0;
-var rightDepth = 0;
+var leftHvDrawingTree = [];
+var rightHvDrawingTree = [];
+var dummyDepth = 1;
 
 var HvNode = function(id, left, right, depth, x, y) {
   this.id = id;
@@ -35,72 +36,56 @@ HvNode.prototype.constructor = HvNode;
 function postOrder (node) { 
 
   node.left && postOrder(node.left);
+
+  preOrderTree.push(node);
+
   node.right && postOrder(node.right);
 
   postOrderTree.push(node);
 
 }
 
-function drawTreeTest(localSubTree, localSubTreeRoot, localSubTreeDepth){
+// CALCOLA LA PROFONDITA DI OGNI NODO
+//
+function drawTree(nodes, type){
 
-      localSubTreeDepth++;
+  if(nodes.length > 0){
+    var node = nodes.shift();
 
-      // RICAVO, SE PRESENTE, IL SOTTOALBERO SINISTRO
-      //
-      var localLeftSubTree = [];
+    if(!node.left && !node.right){
+      var newNode = new HvNode(node.id, node.left, node.right, dummyDepth, 0, 0);
 
-      var isLeftTree = false;
-      for(var i = localSubTree.length-1; i >=0; i--){
-        if(localSubTree[i].id < localSubTreeRoot.id || isLeftTree){
-          isLeftTree = true;
-          localLeftSubTree.push(localSubTree[i]);
-        }
-      }
+      type == 'LEFT' && leftHvDrawingTree.push(newNode);
+      type == 'RIGHT' && rightHvDrawingTree.push(newNode);
 
-      localLeftSubTree.reverse();
+      drawTree(nodes, type);
 
-      if(localLeftSubTree.length > 0){
+    }else{
+      dummyDepth++;
+      var newNode = new HvNode(node.id, node.left, node.right, dummyDepth, 0, 0);
+      
+      type == 'LEFT' && leftHvDrawingTree.push(newNode);
+      type == 'RIGHT' && rightHvDrawingTree.push(newNode);
 
-        var localLeftRoot = localLeftSubTree.pop();
+      drawTree(nodes, type);
 
-        var leftLocalRoot = new HvNode(localLeftRoot.id, localLeftRoot.left, localLeftRoot.right, localSubTreeDepth);
-        console.log(leftLocalRoot.id +' - '+ leftLocalRoot.depth);
+    }
 
-        if(localLeftSubTree.length > 0){
-          drawTreeTest(localLeftSubTree, localLeftRoot, localSubTreeDepth);
-        }
-
-      }
-
-      // RICAVO, SE PRESENTE, IL SOTTOALBERO DESTRO
-      //
-      var rightLocalSubTree = [];
-
-      for(var i = localSubTree.length-1; i >=0; i--){
-        if((localSubTree[i].id > localSubTreeRoot.id)){
-          rightLocalSubTree.push(localSubTree[i]);
-
-        }
-      }
-
-      rightLocalSubTree.reverse();
-
-      if(rightLocalSubTree.length > 0){
-
-        var localRightRoot = rightLocalSubTree.pop();
-
-        var rightLocalRoot = new HvNode(localRightRoot.id, localRightRoot.left, localRightRoot.right, localSubTreeDepth);
-        console.log(rightLocalRoot.id +' - '+ rightLocalRoot.depth);
-
-        if(rightLocalSubTree.length > 0){
-          drawTreeTest(rightLocalSubTree, rightLocalRoot, localSubTreeDepth);
-        }
-
-      }
-
+  }
 
 }
 
+function resizeDepth(hvNodes){
+  var maxValue = d3.max(hvNodes, function(d) { return +d.depth});
+
+  hvNodes.forEach(element => {
+    element.depth = maxValue - element.depth +1;
+    element.y = element.depth;
+  });
+
+  return hvNodes;
+
+}
 
 // MAIN FUNCTION
 //
@@ -118,59 +103,28 @@ function _initFunction(){
       // PRENDO LA RADICE
       //
       var dummyRoot = postOrderTree.pop();
-      root = new HvNode(dummyRoot.id, dummyRoot.left, dummyRoot.right, 0);
+      root = new HvNode(dummyRoot.id, dummyRoot.left, dummyRoot.right, 0, 0, 0);
 
-      console.log(root.id +' - '+ root.depth);
-
-      // RICAVO, SE PRESENTE, IL SOTTOALBERO SINISTRO
+      // SUDDIVIDO TRA SOTTOALBERO DESTRO E SINISTRO
       //
-      var isLeftTree = false;
-      for(var i = postOrderTree.length-1; i >=0; i--){
-        if(postOrderTree[i].id < root.id || isLeftTree){
-          isLeftTree = true;
-          leftSubTree.push(postOrderTree[i]);
-        }
-      }
+      var dummyLeftSubTree = preOrderTree.slice(0, preOrderTree.indexOf(dummyRoot));
+      var dummyRightSubTree = preOrderTree.slice(preOrderTree.indexOf(dummyRoot)+1);
 
-      leftSubTree.reverse();
-
-      if(leftSubTree.length > 0){
-        leftDepth++;
-
-        var localRoot = leftSubTree.pop();
-
-        var leftLocalRoot = new HvNode(localRoot.id, localRoot.left, localRoot.right, leftDepth);
-        console.log(leftLocalRoot.id +' - '+ leftLocalRoot.depth);
+      leftSubTree = postOrderTree.filter(value => dummyLeftSubTree.includes(value));
+      rightSubTree = postOrderTree.filter(value => dummyRightSubTree.includes(value));
       
-        drawTreeTest(leftSubTree, leftLocalRoot, leftDepth);
-
-      }
-
-      // RICAVO, SE PRESENTE, IL SOTTOALBERO DESTRO
+      // CALCOLO LA PROFONDITA' DI OGNI NODO
       //
-      for(var i = postOrderTree.length-1; i >=0; i--){
-        if((postOrderTree[i].id > root.id)){
-          rightSubTree.push(postOrderTree[i]);
+      dummyDepth = 1;
+      drawTree(leftSubTree, "LEFT");
+      leftHvDrawingTree = resizeDepth(leftHvDrawingTree);
+      console.log(leftHvDrawingTree);
 
-        }
-      }
-
-      rightSubTree.reverse();
-
-      if(rightSubTree.length > 0){
-        rightDepth++;
-
-        var localRoot = rightSubTree.pop();
-
-        var rightLocalRoot = new HvNode(localRoot.id, localRoot.left, localRoot.right, rightDepth);
-        console.log(rightLocalRoot.id +' - '+ rightLocalRoot.depth);
-
-        drawTreeTest(rightSubTree, rightLocalRoot, rightDepth);
-
-      
-      }
-
-                                                
+      dummyDepth = 1;
+      drawTree(rightSubTree,  "RIGHT");
+      rightHvDrawingTree = resizeDepth(rightHvDrawingTree);
+      console.log(rightHvDrawingTree);
+                           
   });
 
 }
