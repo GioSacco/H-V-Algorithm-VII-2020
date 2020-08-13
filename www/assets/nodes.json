@@ -20,7 +20,27 @@
                         "left": null,
                         "right": null
                     },
-                    "right": null
+                    "right": {
+                        "id": 24,
+                        "value": 24,
+                        "left": {
+                            "id": 25,
+                            "value": 25,
+                            "left": null,
+                            "right": {
+                                "id": 27,
+                                "value": 27,
+                                "left": null,
+                                "right": null
+                            }
+                        },
+                        "right": {
+                            "id": 26,
+                            "value": 26,
+                            "left": null,
+                            "right": null
+                        }
+                    }
                 }
             },
             "right": null
@@ -28,7 +48,12 @@
         "right": {
             "id": 12,
             "value": 12,
-            "left": null,
+            "left": {
+                "id": 38,
+                "value": 38,
+                "left": null,
+                "right": null
+            },
             "right": null
         }
     },
