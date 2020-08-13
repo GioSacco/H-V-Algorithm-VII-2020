@@ -14,7 +14,12 @@
                 "right": {
                     "id": 8,
                     "value": 8,
-                    "left": null,
+                    "left": {
+                        "id": 23,
+                        "value": 23,
+                        "left": null,
+                        "right": null
+                    },
                     "right": null
                 }
             },
