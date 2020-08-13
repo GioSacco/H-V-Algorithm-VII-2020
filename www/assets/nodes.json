@@ -63,7 +63,17 @@
         "left": {
             "id": 17,
             "value": 17,
-            "left": null,
+            "left": {
+                "id": 16,
+                "value": 16,
+                "left": null,
+                "right": {
+                    "id": 20,
+                    "value": 20,
+                    "left": null,
+                    "right": null
+                }
+            },
             "right": {
                 "id": 18,
                 "value": 18,

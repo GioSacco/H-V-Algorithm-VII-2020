@@ -21,6 +21,9 @@ var leftHvDrawingTreeMap = d3.map();
 var rightHvDrawingTree = [];
 var rightHvDrawingTreeMap = d3.map();
 
+var completeDrawingTree = [];
+var completeDrawingTreeMap = d3.map();
+
 var HvNode = function(id, left, right, x, y) {
   this.id = id;
   this.left = left;
@@ -46,46 +49,88 @@ function postOrder (node) {
 
 }
 
-function updateNodes(nodeID){
+function updateNodes(nodeID, type){
 
-  var node = leftHvDrawingTreeMap.get(nodeID);
+  var node = completeDrawingTreeMap.get(nodeID);
+
+  if(type == 'RIGHT'){
+    node = rightHvDrawingTreeMap.get(nodeID);
+  }
+
+  if(type == 'LEFT'){
+    node = leftHvDrawingTreeMap.get(nodeID);
+  }
 
   if(node.left && !node.right){
 
     var childNode = node.left;
-    leftHvDrawingTreeMap.set(childNode.id, new HvNode(childNode.id, childNode.left, childNode.right, node.x, node.y+100));
 
-    updateNodes(childNode.id);
+    switch(type){
+      case 'LEFT': 
+        leftHvDrawingTreeMap.set(childNode.id, new HvNode(childNode.id, childNode.left, childNode.right, node.x, node.y+100));
+      case 'RIGHT':
+        rightHvDrawingTreeMap.set(childNode.id, new HvNode(childNode.id, childNode.left, childNode.right, node.x, node.y+100));
+      default: 
+        completeDrawingTreeMap.set(childNode.id, new HvNode(childNode.id, childNode.left, childNode.right, node.x, node.y+100));
+    }
+
+    updateNodes(childNode.id, type);
 
   }
 
   if(!node.left && node.right){
 
     var childNode = node.right;
-    leftHvDrawingTreeMap.set(childNode.id, new HvNode(childNode.id, childNode.left, childNode.right, node.x, node.y+100));
 
-    updateNodes(childNode.id);
+    switch(type){
+      case 'LEFT': 
+        leftHvDrawingTreeMap.set(childNode.id, new HvNode(childNode.id, childNode.left, childNode.right, node.x, node.y+100));
+      case 'RIGHT':
+        rightHvDrawingTreeMap.set(childNode.id, new HvNode(childNode.id, childNode.left, childNode.right, node.x, node.y+100));
+      default: 
+        completeDrawingTreeMap.set(childNode.id, new HvNode(childNode.id, childNode.left, childNode.right, node.x, node.y+100));
+    }
+
+    updateNodes(childNode.id, type);
 
   }
 
   if(node.left && node.right){
 
     var childRightNode = node.right;
-    leftHvDrawingTreeMap.set(childRightNode.id, new HvNode(childRightNode.id, childRightNode.left, childRightNode.right, node.x+100, node.y));
-    updateNodes(childRightNode.id);
+
+    switch(type){
+      case 'LEFT': 
+        leftHvDrawingTreeMap.set(childRightNode.id, new HvNode(childRightNode.id, childRightNode.left, childRightNode.right, node.x+100, node.y));
+      case 'RIGHT':
+        rightHvDrawingTreeMap.set(childRightNode.id, new HvNode(childRightNode.id, childRightNode.left, childRightNode.right, node.x+100, node.y));
+      default:
+        completeDrawingTreeMap.set(childRightNode.id, new HvNode(childRightNode.id, childRightNode.left, childRightNode.right, node.x+100, node.y));
+    }
+
+    updateNodes(childRightNode.id, type);
 
     var childLeftNode = node.left;
-    leftHvDrawingTreeMap.set(childLeftNode.id, new HvNode(childLeftNode.id, childLeftNode.left, childLeftNode.right, node.x, node.y+100));
-    updateNodes(childLeftNode.id);
+
+    switch(type){
+      case 'LEFT': 
+        leftHvDrawingTreeMap.set(childLeftNode.id, new HvNode(childLeftNode.id, childLeftNode.left, childLeftNode.right, node.x, node.y+100));
+      case 'RIGHT':
+        rightHvDrawingTreeMap.set(childLeftNode.id, new HvNode(childLeftNode.id, childLeftNode.left, childLeftNode.right, node.x, node.y+100));
+      default: 
+        completeDrawingTreeMap.set(childLeftNode.id, new HvNode(childLeftNode.id, childLeftNode.left, childLeftNode.right, node.x, node.y+100));
+    }
+
+    updateNodes(childLeftNode.id, type);
 
   }
 
 }
 
-function drawTree(subTree){
+function drawTree(subTree, type){
 
   subTree.forEach(element => {
-    updateNodes(element.id);
+    updateNodes(element.id, type);
   })
 
 }
@@ -128,18 +173,22 @@ function _initFunction(){
 
       leftSubTree = postOrderTree.filter(value => dummyLeftSubTree.includes(value));
       rightSubTree = postOrderTree.filter(value => dummyRightSubTree.includes(value));
-      
+
       // CREA DUE MAP DI SUPPORTO PER L'AGGIORNAMENTO DELLE
       // COORDINATE DEI VARI NODI
       //
       leftHvDrawingTreeMap = drawTreeMap(leftSubTree);
-      drawTree(leftSubTree);
-      console.log(leftHvDrawingTreeMap);
+      drawTree(leftSubTree, 'LEFT');
+      leftHvDrawingTree = leftHvDrawingTreeMap.values();
 
-      updateDrawing(leftHvDrawingTreeMap.values());
+      console.log(leftHvDrawingTree);
 
-      //rightHvDrawingTreeMap = drawTreeMap(rightSubTree);
-      //console.log(rightHvDrawingTreeMap);
+
+      rightHvDrawingTreeMap = drawTreeMap(rightSubTree);
+      drawTree(rightSubTree, 'RIGHT');
+      rightHvDrawingTree = rightHvDrawingTreeMap.values();
+
+      updateDrawing(leftHvDrawingTree);
                            
   });
 
