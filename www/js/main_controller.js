@@ -21,8 +21,8 @@ var leftHvDrawingTreeMap = d3.map();
 var rightHvDrawingTree = [];
 var rightHvDrawingTreeMap = d3.map();
 
-var completeDrawingTree = [];
-var completeDrawingTreeMap = d3.map();
+var actualDepth = 0; // VARIABILE CHE GESTISCE L'ALTERNANZA DI COSTRUZIONI H & V
+var globalTree = [];
 
 var HvNode = function(id, left, right, x, y) {
   this.id = id;
@@ -49,92 +49,108 @@ function postOrder (node) {
 
 }
 
-function updateNodes(nodeID, type){
+// DISEGNA IL SOTTOALBERO IN ORIZZONTALE
+//
+function drawH(subTree, dummyMap, dummyTree){
 
-  var node = completeDrawingTreeMap.get(nodeID);
+  var localRoot = dummyMap.get(subTree.pop().id);
+  var rightChild = null;
+  var leftChild = null;
+  var newSubTree = [];
 
-  if(type == 'RIGHT'){
-    node = rightHvDrawingTreeMap.get(nodeID);
-  }
+  dummyMap.set(localRoot.id, new HvNode(localRoot.id, localRoot.left, localRoot.right, localRoot.x, localRoot.y));
+  newSubTree.push(dummyMap.get(localRoot.id));
 
-  if(type == 'LEFT'){
-    node = leftHvDrawingTreeMap.get(nodeID);
-  }
+  if(localRoot.right){
+    rightChild = dummyMap.get(localRoot.right.id);
+    dummyMap.set(rightChild.id, new HvNode(rightChild.id, rightChild.left, rightChild.right, localRoot.x+100, localRoot.y));
+    newSubTree.push(dummyMap.get(rightChild.id));
+  };
+  
+  if(localRoot.left){
+    leftChild = dummyMap.get(localRoot.left.id);
+    dummyMap.set(leftChild.id, new HvNode(leftChild.id, leftChild.left, leftChild.right, localRoot.x, localRoot.y+100));
+    newSubTree.push(dummyMap.get(leftChild.id));
+  };
 
-  if(node.left && !node.right){
+  newSubTree = newSubTree.reverse();
+  dummyTree.push(newSubTree);
 
-    var childNode = node.left;
-
-    switch(type){
-      case 'LEFT': 
-        leftHvDrawingTreeMap.set(childNode.id, new HvNode(childNode.id, childNode.left, childNode.right, node.x, node.y+100));
-      case 'RIGHT':
-        rightHvDrawingTreeMap.set(childNode.id, new HvNode(childNode.id, childNode.left, childNode.right, node.x, node.y+100));
-      default: 
-        completeDrawingTreeMap.set(childNode.id, new HvNode(childNode.id, childNode.left, childNode.right, node.x, node.y+100));
-    }
-
-    updateNodes(childNode.id, type);
-
-  }
-
-  if(!node.left && node.right){
-
-    var childNode = node.right;
-
-    switch(type){
-      case 'LEFT': 
-        leftHvDrawingTreeMap.set(childNode.id, new HvNode(childNode.id, childNode.left, childNode.right, node.x, node.y+100));
-      case 'RIGHT':
-        rightHvDrawingTreeMap.set(childNode.id, new HvNode(childNode.id, childNode.left, childNode.right, node.x, node.y+100));
-      default: 
-        completeDrawingTreeMap.set(childNode.id, new HvNode(childNode.id, childNode.left, childNode.right, node.x, node.y+100));
-    }
-
-    updateNodes(childNode.id, type);
-
-  }
-
-  if(node.left && node.right){
-
-    var childRightNode = node.right;
-
-    switch(type){
-      case 'LEFT': 
-        leftHvDrawingTreeMap.set(childRightNode.id, new HvNode(childRightNode.id, childRightNode.left, childRightNode.right, node.x+100, node.y));
-      case 'RIGHT':
-        rightHvDrawingTreeMap.set(childRightNode.id, new HvNode(childRightNode.id, childRightNode.left, childRightNode.right, node.x+100, node.y));
-      default:
-        completeDrawingTreeMap.set(childRightNode.id, new HvNode(childRightNode.id, childRightNode.left, childRightNode.right, node.x+100, node.y));
-    }
-
-    updateNodes(childRightNode.id, type);
-
-    var childLeftNode = node.left;
-
-    switch(type){
-      case 'LEFT': 
-        leftHvDrawingTreeMap.set(childLeftNode.id, new HvNode(childLeftNode.id, childLeftNode.left, childLeftNode.right, node.x, node.y+100));
-      case 'RIGHT':
-        rightHvDrawingTreeMap.set(childLeftNode.id, new HvNode(childLeftNode.id, childLeftNode.left, childLeftNode.right, node.x, node.y+100));
-      default: 
-        completeDrawingTreeMap.set(childLeftNode.id, new HvNode(childLeftNode.id, childLeftNode.left, childLeftNode.right, node.x, node.y+100));
-    }
-
-    updateNodes(childLeftNode.id, type);
-
-  }
 
 }
 
-function drawTree(subTree, type){
+// DISEGNA IL SOTTOALBERO IN VERTICALE
+//
+function drawV(subTree){
+
+  var localRoot = subTree.pop();
+  var rightChild = localRoot.right;
+  var leftChild = localRoot.left;
+
+  rightChild && leftHvDrawingTreeMap.set(rightChild.id, new HvNode(rightChild.id, rightChild.left, rightChild.right, localRoot.x, localRoot.y+100));
+  leftChild && leftHvDrawingTreeMap.set(leftChild.id, new HvNode(leftChild.id, leftChild.left, leftChild.right, localRoot.x+200, localRoot.y));
+
+  
+}
+
+
+// PRENDO TUTTI I SOTTOALBERI, IN POSTORDINE, E 
+// GENERO LE COORDINATE ALTERNANDO COSTRUZIONI H & V
+//
+function updateNodes(nodeID, dummyMap, dummyTree){
+
+  var node = dummyMap.get(nodeID);
+
+  if(node){
+    
+    var localSubTree = [];
+
+    var leftChild = null;
+    if(node.left){
+      leftChild = dummyMap.get(node.left.id);
+    }
+
+    var rightChild = null;
+    if(node.right){
+      rightChild = dummyMap.get(node.right.id);
+    }
+
+    leftChild && localSubTree.push(leftChild);
+    rightChild && localSubTree.push(rightChild);
+
+    localSubTree.push(node);
+
+    if(localSubTree.length > 1){
+      if(actualDepth % 2 == 0){
+
+        actualDepth = 1;
+        drawH(localSubTree, dummyMap, dummyTree);
+  
+      }else{
+  
+        actualDepth = 0;
+        drawH(localSubTree, dummyMap, dummyTree);
+  
+      }
+    }
+
+  }
+
+
+}
+
+// CICLA I NODI IN POSTORDINE E INSERISCI LE COORDINATE
+//
+function drawTree(subTree, dummyMap, dummyTree){
 
   subTree.forEach(element => {
-    updateNodes(element.id, type);
+    updateNodes(element.id, dummyMap, dummyTree);
   })
 
 }
 
+// GENERA UNA MAPPA DI SUPPORTO ID -> NODO
+//
 function drawTreeMap(subTreeList){
 
   var dummySubTreeMap = d3.map();
@@ -147,6 +163,42 @@ function drawTreeMap(subTreeList){
 
 }
 
+function reverseCoordinate(subTreeList, dummyMap){
+  var reverseSubTree = subTreeList.reverse();
+
+  for(var i = 0; i <= reverseSubTree.length-1; i++){
+
+    for(j = i+1; j <= reverseSubTree.length-1; j++){
+
+      var oldNextLocalRoot = reverseSubTree[j][reverseSubTree[j].length-1];
+
+      var newNextLocalRoot = reverseSubTree[i].filter(function(item){ return item.id == oldNextLocalRoot.id })[0];
+
+      if(newNextLocalRoot){
+
+        reverseSubTree[j].pop();
+        reverseSubTree[j].push(newNextLocalRoot);
+
+        var lastNewNextLocalRoot = dummyMap.get(newNextLocalRoot.id);
+
+        dummyMap.set(lastNewNextLocalRoot.id, new HvNode(lastNewNextLocalRoot.id, lastNewNextLocalRoot.left, lastNewNextLocalRoot.right, lastNewNextLocalRoot.x, lastNewNextLocalRoot.y));
+  
+        if(lastNewNextLocalRoot.right){
+          rightChild = dummyMap.get(newNextLocalRoot.right.id);
+          dummyMap.set(rightChild.id, new HvNode(rightChild.id, rightChild.left, rightChild.right, rightChild.x+lastNewNextLocalRoot.x, lastNewNextLocalRoot.y));
+        };
+        
+        if(lastNewNextLocalRoot.left){
+          leftChild = dummyMap.get(newNextLocalRoot.left.id);
+          dummyMap.set(leftChild.id, new HvNode(leftChild.id, leftChild.left, leftChild.right, lastNewNextLocalRoot.x, leftChild.y+lastNewNextLocalRoot.y));
+        };
+      }
+
+    }
+
+  }
+
+}
 
 // MAIN FUNCTION
 //
@@ -178,15 +230,14 @@ function _initFunction(){
       // COORDINATE DEI VARI NODI
       //
       leftHvDrawingTreeMap = drawTreeMap(leftSubTree);
-      drawTree(leftSubTree, 'LEFT');
+      drawTree(leftSubTree, leftHvDrawingTreeMap, leftHvDrawingTree);
+      reverseCoordinate(leftHvDrawingTree, leftHvDrawingTreeMap);
       leftHvDrawingTree = leftHvDrawingTreeMap.values();
-
-      console.log(leftHvDrawingTree);
-
+      //leftHvDrawingTree = leftHvDrawingTreeMap.values();
 
       rightHvDrawingTreeMap = drawTreeMap(rightSubTree);
-      drawTree(rightSubTree, 'RIGHT');
-      rightHvDrawingTree = rightHvDrawingTreeMap.values();
+      drawTree(rightSubTree, rightHvDrawingTreeMap, rightHvDrawingTree);
+      //rightHvDrawingTree = rightHvDrawingTreeMap.values();
 
       updateDrawing(leftHvDrawingTree);
                            
@@ -198,6 +249,14 @@ function _initFunction(){
 * @param data 
 */
 function updateDrawing(data){
+
+  var y = d3.scaleLinear()
+    .domain([-1000, 0])
+    .range([0, 500]);
+
+  var x = d3.scaleLinear()
+    .domain([-1000, 0])
+    .range([0, 500]);
 
   var body = d3.select("body")
     .attr("width", width)
@@ -215,12 +274,13 @@ function updateDrawing(data){
  
   // Enter clause: add new elements
   //
-  nodes.enter().append("rect")
+  nodes.enter().append("text")
       .attr("class", "node")
-      .attr("x", function(d) { return d.x })
-      .attr("y", function(d) { return d.y })
+      .attr("x", function(d) { return x(d.x) })
+      .attr("y", function(d) { return y(d.y) })
       .attr("width", 10)
-      .attr("height", 10);
+      .attr("height", 10)
+      .text(function(d){return d.id});
  
  }
 
