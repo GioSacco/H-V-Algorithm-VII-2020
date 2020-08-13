@@ -13,7 +13,12 @@
                 "left": {
                     "id": 10,
                     "value": 10,
-                    "left": null,
+                    "left": {
+                        "id": 18,
+                        "value": 18,
+                        "left": null,
+                        "right": null
+                    },
                     "right": null
                 },
                 "right": {
@@ -32,13 +37,33 @@
                 "id": 7,
                 "value": 7,
                 "left": null,
-                "right": null
+                "right": {
+                    "id": 17,
+                    "value": 17,
+                    "left": {
+                        "id": 19,
+                        "value": 19,
+                        "left": null,
+                        "right": null
+                    },
+                    "right": null
+                }
             },
             "right": {
                 "id": 8,
                 "value": 8,
                 "left": null,
-                "right": null
+                "right": {
+                    "id": 12,
+                    "value": 12,
+                    "left": null,
+                    "right": {
+                        "id": 13,
+                        "value": 13,
+                        "left": null,
+                        "right": null
+                    }
+                }
             }
         }
     },

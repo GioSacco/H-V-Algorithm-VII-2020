@@ -17,12 +17,14 @@ var root = null;
 //
 var leftHvDrawingTree = [];
 var leftHvDrawingTreeMap = d3.map();
+var leftLinks = [];
 
 var rightHvDrawingTree = [];
 var rightHvDrawingTreeMap = d3.map();
 
 var actualDepth = 0; // VARIABILE CHE GESTISCE L'ALTERNANZA DI COSTRUZIONI H & V
-var globalTree = [];
+var maxWidht = 0;
+var maxHeight = 0;
 
 var HvNode = function(id, left, right, x, y) {
   this.id = id;
@@ -75,7 +77,6 @@ function drawH(subTree, dummyMap, dummyTree){
 
   newSubTree = newSubTree.reverse();
   dummyTree.push(newSubTree);
-
 
 }
 
@@ -183,20 +184,66 @@ function reverseCoordinate(subTreeList, dummyMap){
 
         dummyMap.set(lastNewNextLocalRoot.id, new HvNode(lastNewNextLocalRoot.id, lastNewNextLocalRoot.left, lastNewNextLocalRoot.right, lastNewNextLocalRoot.x, lastNewNextLocalRoot.y));
   
+        if(maxWidht < lastNewNextLocalRoot.x){
+          maxWidht = lastNewNextLocalRoot.x;
+        }
+
+        if(maxHeight < lastNewNextLocalRoot.y){
+          maxHeight = lastNewNextLocalRoot.y;
+        }
+
         if(lastNewNextLocalRoot.right){
           rightChild = dummyMap.get(newNextLocalRoot.right.id);
           dummyMap.set(rightChild.id, new HvNode(rightChild.id, rightChild.left, rightChild.right, rightChild.x+lastNewNextLocalRoot.x, lastNewNextLocalRoot.y));
+        
+          if(maxWidht < rightChild.x+lastNewNextLocalRoot.x){
+            maxWidht = rightChild.x+lastNewNextLocalRoot.x;
+          }
+
+          if(maxHeight < lastNewNextLocalRoot.y){
+            maxHeight = lastNewNextLocalRoot.y;
+          }
+        
         };
         
         if(lastNewNextLocalRoot.left){
           leftChild = dummyMap.get(newNextLocalRoot.left.id);
           dummyMap.set(leftChild.id, new HvNode(leftChild.id, leftChild.left, leftChild.right, lastNewNextLocalRoot.x, leftChild.y+lastNewNextLocalRoot.y));
+        
+          if(maxWidht < lastNewNextLocalRoot.x){
+            maxWidht = lastNewNextLocalRoot.x;
+          }
+  
+          if(maxHeight < leftChild.y+lastNewNextLocalRoot.y){
+            maxHeight = leftChild.y+lastNewNextLocalRoot.y;
+          }
+        
         };
       }
 
     }
 
   }
+
+}
+
+function createLink(subTree, drawMap){
+
+  var reverseSubTree = subTree.reverse();
+
+  reverseSubTree.forEach(element => {
+
+    if(element.right){
+      var rightChild = drawMap.get(element.right.id);
+      leftLinks.push([{x: element.x, y: element.y}, {x: rightChild.x, y: rightChild.y}]);
+    }
+
+    if(element.left){
+      var leftChild = drawMap.get(element.left.id);
+      leftLinks.push([{x: element.x, y: element.y}, {x: leftChild.x, y: leftChild.y}]);
+    }
+
+  });
 
 }
 
@@ -235,11 +282,13 @@ function _initFunction(){
       leftHvDrawingTree = leftHvDrawingTreeMap.values();
       //leftHvDrawingTree = leftHvDrawingTreeMap.values();
 
-      rightHvDrawingTreeMap = drawTreeMap(rightSubTree);
-      drawTree(rightSubTree, rightHvDrawingTreeMap, rightHvDrawingTree);
+      //rightHvDrawingTreeMap = drawTreeMap(rightSubTree);
+      //drawTree(rightSubTree, rightHvDrawingTreeMap, rightHvDrawingTree);
       //rightHvDrawingTree = rightHvDrawingTreeMap.values();
 
-      updateDrawing(leftHvDrawingTree);
+      createLink(leftHvDrawingTree, leftHvDrawingTreeMap);
+      console.log(leftLinks);
+      updateDrawing(leftHvDrawingTree, leftLinks);
                            
   });
 
@@ -248,38 +297,61 @@ function _initFunction(){
 /* TODO: TEST!
 * @param data 
 */
-function updateDrawing(data){
+function updateDrawing(data, dataPoints){
 
   var y = d3.scaleLinear()
-    .domain([-1000, 0])
-    .range([0, 500]);
+    .domain([0, maxHeight])
+    .range([40, 300]);
 
   var x = d3.scaleLinear()
-    .domain([-1000, 0])
-    .range([0, 500]);
+    .domain([0, maxHeight])
+    .range([40, 300]);
 
   var body = d3.select("body")
     .attr("width", width)
     .attr("height", height)
   
+  var  margin = { top: 10, right: 30, bottom: 50, left: 20 };
   svg = body.append("svg")
-    .attr("width", width)
-    .attr("height", height)
+    .attr('width', 500 + margin.right + margin.left)
+    .attr('height', 500 + margin.top + margin.bottom)
     .append("g")  
  
   var nodes = svg.selectAll(".node").data(data, function(d){return d.id});
+  var links = svg.selectAll(".links").data(dataPoints, function(d){return d});
+  var labels = svg.selectAll(".labels").data(data, function(d){return d});
  
   // Exit clause: Remove elements
   nodes.exit().remove();
+  links.exit().remove();
+  labels.exit().remove();
  
   // Enter clause: add new elements
   //
-  nodes.enter().append("text")
+  nodes.enter().append("rect")
       .attr("class", "node")
-      .attr("x", function(d) { return x(d.x) })
-      .attr("y", function(d) { return y(d.y) })
-      .attr("width", 10)
-      .attr("height", 10)
+      .attr("x", function(d) { return x(d.x)})
+      .attr("y", function(d) { return y(d.y)})
+      .attr("fill", "#02366b")
+      .attr("width", 40)
+      .attr("height", 22)
+
+  links.enter().append("line")
+    .attr("class", "links")
+    .style("stroke", "#02366b")
+    .attr("stroke-width", 3)
+    .attr("x1", function(d) { return (x(d[0].x))+20})     
+    .attr("y1", function(d) { return (y(d[0].y)+11)})      
+    .attr("x2", function(d) { return (x(d[1].x))+20})    
+    .attr("y2", function(d) { return (y(d[1].y))+11}); 
+
+  nodes.enter().append("text")
+      .attr("class", "labels")
+      .attr("x", function(d) { return x(d.x)+19})
+      .attr("y", function(d) { return y(d.y)+15})
+      .attr("fill", "white")
+      .attr("text-anchor", "middle")  
+      .style("font-size", "13px")
       .text(function(d){return d.id});
  
  }
