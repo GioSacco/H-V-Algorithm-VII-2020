@@ -19,6 +19,6 @@ La logica implementata segue i seguenti passi:
 
 5. Disegno di nodi e archi tramite D3.js.
 
-Tale soluzione, pur limitando l'espanszione in altezza dell'albero, crea problemi in termini di aspect ratio. Difatti, per alcune tipologie di alberi (ex che abbiano un gran numero di figli destri), si avrà una notevole espansione in larghezza non accompagnata però da una corrispondente crescita in altezza.
+Tale soluzione, pur limitando l'espansione in altezza dell'albero, crea problemi in termini di aspect ratio. Difatti, per alcune tipologie di alberi (ex che abbiano un gran numero di figli destri), si avrà una notevole espansione in larghezza non accompagnata però da una corrispondente crescita in altezza.
 
 Per risolvere questo problema è possibile implementare un algoritmo che alterni composizioni verticali e orizzontali. Tuttavia questa modalità è ottima unicamente per gli alberi binari completi (complessità O(n)).
