@@ -18,6 +18,8 @@ var root = null;
 var leftHvDrawingTree = [];
 var leftHvDrawingTreeMap = d3.map();
 var leftLinks = [];
+var leftNodes = [];
+var leftNodesSupport = [];
 
 var rightHvDrawingTree = [];
 var rightHvDrawingTreeMap = d3.map();
@@ -167,6 +169,8 @@ function drawTreeMap(subTreeList){
 function reverseCoordinate(subTreeList, dummyMap){
   var reverseSubTree = subTreeList.reverse();
 
+  leftNodes.push(root.left.id); // TODO: CAMBIARE CON ROOT.ID!!!!!!                <---------------------------------------------
+
   for(var i = 0; i <= reverseSubTree.length-1; i++){
 
     for(j = i+1; j <= reverseSubTree.length-1; j++){
@@ -184,6 +188,10 @@ function reverseCoordinate(subTreeList, dummyMap){
 
         dummyMap.set(lastNewNextLocalRoot.id, new HvNode(lastNewNextLocalRoot.id, lastNewNextLocalRoot.left, lastNewNextLocalRoot.right, lastNewNextLocalRoot.x, lastNewNextLocalRoot.y));
   
+        if(lastNewNextLocalRoot.x == 0){
+          leftNodes.push(lastNewNextLocalRoot.id);
+        }
+
         if(maxWidht < lastNewNextLocalRoot.x){
           maxWidht = lastNewNextLocalRoot.x;
         }
@@ -194,10 +202,12 @@ function reverseCoordinate(subTreeList, dummyMap){
 
         if(lastNewNextLocalRoot.right){
           rightChild = dummyMap.get(newNextLocalRoot.right.id);
-          dummyMap.set(rightChild.id, new HvNode(rightChild.id, rightChild.left, rightChild.right, rightChild.x+lastNewNextLocalRoot.x, lastNewNextLocalRoot.y));
         
           if(maxWidht < rightChild.x+lastNewNextLocalRoot.x){
-            maxWidht = rightChild.x+lastNewNextLocalRoot.x;
+            dummyMap.set(rightChild.id, new HvNode(rightChild.id, rightChild.left, rightChild.right, rightChild.x+lastNewNextLocalRoot.x, lastNewNextLocalRoot.y));
+
+          }else{
+            dummyMap.set(rightChild.id, new HvNode(rightChild.id, rightChild.left, rightChild.right, rightChild.x+lastNewNextLocalRoot.x, lastNewNextLocalRoot.y));
           }
 
           if(maxHeight < lastNewNextLocalRoot.y){
@@ -225,6 +235,8 @@ function reverseCoordinate(subTreeList, dummyMap){
 
   }
 
+  leftNodes.push(postOrderTree[0].id);
+
 }
 
 function createLink(subTree, drawMap){
@@ -244,6 +256,56 @@ function createLink(subTree, drawMap){
     }
 
   });
+
+}
+
+function getLastNode(node){
+  if(node.right){
+    getLastNode(node.right);
+  }
+
+  leftNodesSupport.push(node);
+
+  if(node.left){
+    getLastNode(node.left);
+  }
+
+}
+
+function moveOnRight(node, margin, dummyMap){
+
+  var currentNode = dummyMap.get(node.id);
+  dummyMap.set(node.id, new HvNode(currentNode.id, currentNode.left, currentNode.right, currentNode.x+margin, currentNode.y));
+
+  if(node.right){
+    moveOnRight(currentNode.right, margin, dummyMap);
+  }
+
+  if(node.left){
+    moveOnRight(currentNode.left, margin, dummyMap);
+  }
+
+}
+
+function spliceHTree(dummyMap){
+
+  var rightMargin = 0;
+
+  leftNodes.reverse().forEach(element => {
+    var node = dummyMap.get(element);
+
+    if(node.right){
+
+      moveOnRight(node.right, rightMargin, dummyMap);
+      leftNodesSupport = [];
+
+      getLastNode(node.right);
+      rightMargin = dummyMap.get(leftNodesSupport[0].id).x;
+    }
+
+  })
+
+
 
 }
 
@@ -279,15 +341,11 @@ function _initFunction(){
       leftHvDrawingTreeMap = drawTreeMap(leftSubTree);
       drawTree(leftSubTree, leftHvDrawingTreeMap, leftHvDrawingTree);
       reverseCoordinate(leftHvDrawingTree, leftHvDrawingTreeMap);
-      leftHvDrawingTree = leftHvDrawingTreeMap.values();
-      //leftHvDrawingTree = leftHvDrawingTreeMap.values();
+      spliceHTree(leftHvDrawingTreeMap);
 
-      //rightHvDrawingTreeMap = drawTreeMap(rightSubTree);
-      //drawTree(rightSubTree, rightHvDrawingTreeMap, rightHvDrawingTree);
-      //rightHvDrawingTree = rightHvDrawingTreeMap.values();
+      leftHvDrawingTree = leftHvDrawingTreeMap.values();
 
       createLink(leftHvDrawingTree, leftHvDrawingTreeMap);
-      console.log(leftLinks);
       updateDrawing(leftHvDrawingTree, leftLinks);
                            
   });
@@ -300,7 +358,7 @@ function _initFunction(){
 function updateDrawing(data, dataPoints){
 
   var y = d3.scaleLinear()
-    .domain([0, maxHeight])
+    .domain([0, maxWidht])
     .range([40, 300]);
 
   var x = d3.scaleLinear()
@@ -311,10 +369,9 @@ function updateDrawing(data, dataPoints){
     .attr("width", width)
     .attr("height", height)
   
-  var  margin = { top: 10, right: 30, bottom: 50, left: 20 };
   svg = body.append("svg")
-    .attr('width', 500 + margin.right + margin.left)
-    .attr('height', 500 + margin.top + margin.bottom)
+    .attr('width', width)
+    .attr('height', height)
     .append("g")  
  
   var nodes = svg.selectAll(".node").data(data, function(d){return d.id});

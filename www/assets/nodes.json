@@ -19,7 +19,22 @@
                         "left": null,
                         "right": null
                     },
-                    "right": null
+                    "right": {
+                        "id": 20,
+                        "value": 20,
+                        "left": null,
+                        "right": {
+                            "id": 21,
+                            "value": 21,
+                            "left": null,
+                            "right": {
+                                "id": 22,
+                                "value": 22,
+                                "left": null,
+                                "right": null
+                            }
+                        }
+                    }
                 },
                 "right": {
                     "id": 11,
@@ -28,7 +43,12 @@
                     "right": null
                 }
             },
-            "right": null
+            "right": {
+                "id": 24,
+                "value": 24,
+                "left": null,
+                "right": null
+            }
         },
         "right": {
             "id": 6,
@@ -36,7 +56,12 @@
             "left": {
                 "id": 7,
                 "value": 7,
-                "left": null,
+                "left": {
+                    "id": 23,
+                    "value": 23,
+                    "left": null,
+                    "right": null
+                },
                 "right": {
                     "id": 17,
                     "value": 17,
