@@ -7,7 +7,6 @@ var height = window.innerHeight;
 // VARIABILI RELATIVE ALL'ALBERO DI INPUT
 //
 var leftSubTree = [];
-var rightSubTree = [];
 var inputTree = [];
 var postOrderTree = [];
 var preOrderTree = [];
@@ -15,16 +14,12 @@ var root = null;
 
 // VARIABILI PER H-V DRAWING
 //
-var leftHvDrawingTree = [];
-var leftHvDrawingTreeMap = d3.map();
+var hvDrawingTree = [];
+var hvDrawingTreeMap = d3.map();
 var leftLinks = [];
 var leftNodes = [];
 var leftNodesSupport = [];
 
-var rightHvDrawingTree = [];
-var rightHvDrawingTreeMap = d3.map();
-
-var actualDepth = 0; // VARIABILE CHE GESTISCE L'ALTERNANZA DI COSTRUZIONI H & V
 var maxWidht = 0;
 var maxHeight = 0;
 
@@ -82,20 +77,6 @@ function drawH(subTree, dummyMap, dummyTree){
 
 }
 
-// DISEGNA IL SOTTOALBERO IN VERTICALE
-//
-function drawV(subTree){
-
-  var localRoot = subTree.pop();
-  var rightChild = localRoot.right;
-  var leftChild = localRoot.left;
-
-  rightChild && leftHvDrawingTreeMap.set(rightChild.id, new HvNode(rightChild.id, rightChild.left, rightChild.right, localRoot.x, localRoot.y+100));
-  leftChild && leftHvDrawingTreeMap.set(leftChild.id, new HvNode(leftChild.id, leftChild.left, leftChild.right, localRoot.x+200, localRoot.y));
-
-  
-}
-
 
 // PRENDO TUTTI I SOTTOALBERI, IN POSTORDINE, E 
 // GENERO LE COORDINATE ALTERNANDO COSTRUZIONI H & V
@@ -124,17 +105,7 @@ function updateNodes(nodeID, dummyMap, dummyTree){
     localSubTree.push(node);
 
     if(localSubTree.length > 1){
-      if(actualDepth % 2 == 0){
-
-        actualDepth = 1;
-        drawH(localSubTree, dummyMap, dummyTree);
-  
-      }else{
-  
-        actualDepth = 0;
-        drawH(localSubTree, dummyMap, dummyTree);
-  
-      }
+      drawH(localSubTree, dummyMap, dummyTree);
     }
 
   }
@@ -169,7 +140,7 @@ function drawTreeMap(subTreeList){
 function reverseCoordinate(subTreeList, dummyMap){
   var reverseSubTree = subTreeList.reverse();
 
-  leftNodes.push(root.left.id); // TODO: CAMBIARE CON ROOT.ID!!!!!!                <---------------------------------------------
+  leftNodes.push(root.id);
 
   for(var i = 0; i <= reverseSubTree.length-1; i++){
 
@@ -324,29 +295,22 @@ function _initFunction(){
 
       // PRENDO LA RADICE
       //
-      var dummyRoot = postOrderTree.pop();
+      var dummyRoot = postOrderTree[postOrderTree.length-1];
       root = new HvNode(dummyRoot.id, dummyRoot.left, dummyRoot.right, 0, 0);
-
-      // SUDDIVIDO TRA SOTTOALBERO DESTRO E SINISTRO
-      //
-      var dummyLeftSubTree = preOrderTree.slice(0, preOrderTree.indexOf(dummyRoot));
-      var dummyRightSubTree = preOrderTree.slice(preOrderTree.indexOf(dummyRoot)+1);
-
-      leftSubTree = postOrderTree.filter(value => dummyLeftSubTree.includes(value));
-      rightSubTree = postOrderTree.filter(value => dummyRightSubTree.includes(value));
 
       // CREA DUE MAP DI SUPPORTO PER L'AGGIORNAMENTO DELLE
       // COORDINATE DEI VARI NODI
       //
-      leftHvDrawingTreeMap = drawTreeMap(leftSubTree);
-      drawTree(leftSubTree, leftHvDrawingTreeMap, leftHvDrawingTree);
-      reverseCoordinate(leftHvDrawingTree, leftHvDrawingTreeMap);
-      spliceHTree(leftHvDrawingTreeMap);
+      hvDrawingTreeMap = drawTreeMap(postOrderTree);
+      drawTree(postOrderTree, hvDrawingTreeMap, hvDrawingTree);
+      reverseCoordinate(hvDrawingTree, hvDrawingTreeMap);
+      spliceHTree(hvDrawingTreeMap);
 
-      leftHvDrawingTree = leftHvDrawingTreeMap.values();
+      hvDrawingTree = hvDrawingTreeMap.values();
 
-      createLink(leftHvDrawingTree, leftHvDrawingTreeMap);
-      updateDrawing(leftHvDrawingTree, leftLinks);
+      createLink(hvDrawingTree, hvDrawingTreeMap);
+      updateDrawing(hvDrawingTree, leftLinks);
+
                            
   });
 
