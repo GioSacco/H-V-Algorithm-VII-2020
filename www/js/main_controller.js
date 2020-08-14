@@ -280,6 +280,10 @@ function spliceHTree(dummyMap){
 
 }
 
+function readChildNumber(node){
+
+}
+
 // MAIN FUNCTION
 //
 function _initFunction(){
