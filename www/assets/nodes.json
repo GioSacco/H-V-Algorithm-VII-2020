@@ -1,106 +1,141 @@
 [{
-    "id": 0,
-    "value": 0,
-    "left": {
-        "id": 1,
-        "value": 1,
-        "left": {
-            "id": 5,
-            "value": 5,
-            "left": {
-                "id": 9,
-                "value": 9,
-                "left": {
-                    "id": 10,
-                    "value": 10,
-                    "left": {
-                        "id": 18,
-                        "value": 18,
-                        "left": null,
-                        "right": null
-                    },
-                    "right": {
-                        "id": 20,
-                        "value": 20,
-                        "left": null,
-                        "right": {
-                            "id": 21,
-                            "value": 21,
-                            "left": null,
-                            "right": {
-                                "id": 22,
-                                "value": 22,
-                                "left": null,
-                                "right": null
-                            }
-                        }
-                    }
-                },
-                "right": {
-                    "id": 11,
-                    "value": 11,
-                    "left": null,
-                    "right": null
-                }
-            },
-            "right": {
-                "id": 24,
-                "value": 24,
-                "left": null,
-                "right": null
-            }
-        },
-        "right": {
-            "id": 6,
-            "value": 6,
-            "left": {
-                "id": 7,
-                "value": 7,
-                "left": {
-                    "id": 23,
-                    "value": 23,
-                    "left": null,
-                    "right": null
-                },
-                "right": {
-                    "id": 17,
-                    "value": 17,
-                    "left": {
-                        "id": 19,
-                        "value": 19,
-                        "left": null,
-                        "right": null
-                    },
-                    "right": null
-                }
-            },
-            "right": {
-                "id": 8,
-                "value": 8,
-                "left": null,
-                "right": {
-                    "id": 12,
-                    "value": 12,
-                    "left": null,
-                    "right": {
-                        "id": 13,
-                        "value": 13,
-                        "left": null,
-                        "right": null
-                    }
-                }
-            }
-        }
-    },
+    "id": 1,
+    "value": 1,
     "right": {
         "id": 2,
         "value": 2,
-        "left": {
+        "right": {
             "id": 3,
             "value": 3,
-            "left": null,
-            "right": null
+            "right": {
+                "id": 4,
+                "value": 4,
+                "right": {
+                    "id": 5,
+                    "value": 5,
+                    "right": null,
+                    "left": null
+                },
+                "left": {
+                    "id": 6,
+                    "value": 6,
+                    "right": {
+                        "id": 32,
+                        "value": 32,
+                        "right": null,
+                        "left": null
+                    },
+                    "left": {
+                        "id": 33,
+                        "value": 34,
+                        "right": null,
+                        "left": {
+                            "id": 34,
+                            "value": 34,
+                            "right": null,
+                            "left": null
+                        }
+                    }
+                }
+            },
+            "left": {
+                "id": 7,
+                "value": 7,
+                "right": {
+                    "id": 31,
+                    "value": 31,
+                    "right": null,
+                    "left": null
+                },
+                "left": null
+            }
         },
-        "right": null
+        "left": {
+            "id": 8,
+            "value": 8,
+            "right": {
+                "id": 9,
+                "value": 9,
+                "right": {
+                    "id": 10,
+                    "value": 10,
+                    "right": {
+                        "id": 30,
+                        "value": 30,
+                        "right": null,
+                        "left": null
+                    },
+                    "left": null
+                },
+                "left": {
+                    "id": 12,
+                    "value": 12,
+                    "right": null,
+                    "left": null
+                }
+            },
+            "left": {
+                "id": 11,
+                "value": 11,
+                "right": null,
+                "left": null
+            }
+        }
+    },
+    "left": {
+        "id": 13,
+        "value": 13,
+        "left": {
+            "id": 19,
+            "value": 19,
+            "right": {
+                "id": 20,
+                "value": 20,
+                "right": null,
+                "left": null
+            },
+            "left": {
+                "id": 21,
+                "value": 21,
+                "right": {
+                    "id": 35,
+                    "value": 35,
+                    "right": null,
+                    "left": null
+                },
+                "left": {
+                    "id": 36,
+                    "value": 36,
+                    "right": null,
+                    "left": null
+                }
+            }
+        },
+        "right": {
+            "id": 14,
+            "value": 14,
+            "right": {
+                "id": 15,
+                "value": 15,
+                "right": {
+                    "id": 16,
+                    "value": 16,
+                    "right": null,
+                    "left": null
+                },
+                "left": {
+                    "id": 17,
+                    "value": 17,
+                    "right": null,
+                    "left": null
+                }
+            },
+            "left": {
+                "id": 18,
+                "value": 18,
+                "right": null,
+                "left": null
+            }
+        }
     }
 }]

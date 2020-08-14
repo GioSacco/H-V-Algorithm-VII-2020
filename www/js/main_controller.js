@@ -18,6 +18,7 @@ var hvDrawingTree = [];
 var hvDrawingTreeMap = d3.map();
 var leftLinks = [];
 var leftNodes = [];
+var topNodes = [];
 var leftNodesSupport = [];
 
 var maxWidht = 0;
@@ -141,6 +142,7 @@ function reverseCoordinate(subTreeList, dummyMap){
   var reverseSubTree = subTreeList.reverse();
 
   leftNodes.push(root.id);
+  topNodes.push(root.id);
 
   for(var i = 0; i <= reverseSubTree.length-1; i++){
 
@@ -162,6 +164,10 @@ function reverseCoordinate(subTreeList, dummyMap){
         if(lastNewNextLocalRoot.x == 0){
           leftNodes.push(lastNewNextLocalRoot.id);
         }
+
+        if(lastNewNextLocalRoot.y == 0){
+          topNodes.push(lastNewNextLocalRoot.id);
+        };
 
         if(maxWidht < lastNewNextLocalRoot.x){
           maxWidht = lastNewNextLocalRoot.x;
@@ -246,7 +252,7 @@ function getLastNode(node){
 function moveOnRight(node, margin, dummyMap){
 
   var currentNode = dummyMap.get(node.id);
-  dummyMap.set(node.id, new HvNode(currentNode.id, currentNode.left, currentNode.right, currentNode.x+margin, currentNode.y));
+  dummyMap.set(currentNode.id, new HvNode(currentNode.id, currentNode.left, currentNode.right, currentNode.x+margin, currentNode.y));
 
   if(node.right){
     moveOnRight(currentNode.right, margin, dummyMap);
@@ -276,11 +282,60 @@ function spliceHTree(dummyMap){
 
   })
 
+  spliceVTree(dummyMap);
+
+}
+
+function spliceVTree(dummyMap){
+
+  var rightMargin = 0;
+  var nodeXValue = 0;
+
+  topNodes.forEach(element => {
+    var node = dummyMap.get(element);
+
+    if(node.left){
+
+      leftNodesSupport = [];
+
+      getLastNode(node.left);
+      
+      nodeXValue = 0;
+
+      leftNodesSupport.forEach(element2 => {
+
+        if(dummyMap.get(element2.id).x > nodeXValue){
+          nodeXValue = dummyMap.get(element2.id).x;
+        }
+
+      })
+
+      if(node.right){
+        var rightChild = dummyMap.get(node.right.id);
+        rightMargin = nodeXValue - rightChild.x + 100
+
+        moveOnRight(rightChild, rightMargin, dummyMap);
+
+      }
+
+    }
+
+  })
 
 
 }
 
-function readChildNumber(node){
+function readChildNumber(node, childNodes){
+
+  if(node.left){
+    readChildNumber(node.left, childNodes);
+  }
+
+  childNodes.push(node);
+
+  if(node.right){
+    readChildNumber(node.right, childNodes);
+  }
 
 }
 
@@ -296,6 +351,37 @@ function _initFunction(){
       // RICAVO L'ALBERO IN POST ORDINE
       //
       postOrder(inputTree[0]);
+
+      postOrderTree.forEach(element => {
+
+        var childRightNumber = 0;
+        var childLeftNumber = 0;
+
+        var childNode = [];
+
+        if(element.right && element.left){
+          readChildNumber(element.right, childNode)
+          childRightNumber = childNode.length;
+
+          childNode = [];
+
+          readChildNumber(element.left, childNode)
+          childLeftNumber = childNode.length;
+
+          if(childLeftNumber > childRightNumber){
+            var oldRight = element.right;
+            element.right = element.left;
+            element.left = oldRight;
+          }
+
+
+        }else{
+          var oldRight = element.right;
+          element.right = element.left;
+          element.left = oldRight;
+        }
+
+      })
 
       // PRENDO LA RADICE
       //
@@ -314,14 +400,13 @@ function _initFunction(){
 
       createLink(hvDrawingTree, hvDrawingTreeMap);
       updateDrawing(hvDrawingTree, leftLinks);
-
                            
   });
 
 }
 
-/* TODO: TEST!
-* @param data 
+/* DISEGNA L'ALBERO
+* @param data, dataPoints
 */
 function updateDrawing(data, dataPoints){
 
@@ -346,13 +431,11 @@ function updateDrawing(data, dataPoints){
   var links = svg.selectAll(".links").data(dataPoints, function(d){return d});
   var labels = svg.selectAll(".labels").data(data, function(d){return d});
  
-  // Exit clause: Remove elements
+
   nodes.exit().remove();
   links.exit().remove();
   labels.exit().remove();
  
-  // Enter clause: add new elements
-  //
   nodes.enter().append("rect")
       .attr("class", "node")
       .attr("x", function(d) { return x(d.x)})
