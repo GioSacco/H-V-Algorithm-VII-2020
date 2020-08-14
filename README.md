@@ -6,4 +6,13 @@ Il progetto preve l'implementazione di un algoritmo per produrre hv-drawings di 
 
 La logica implementata segue i seguenti passi:
 
-\* Fase 1: visita in postordine dell'albero binario
+1. Visita in postordine dell'albero binario;
+
+   1. Trasposizione, per ogni nodo dell'albero, del figlio con più nodi alla destra.;
+
+2. Visita in postordine dell'albero per ottenere le coordinate locali di ogni nodo: in questo modo, ogni nodo, avrà delle coordinate
+   locali relative unicamente al suo genitore;
+
+3. Visita dalla radice di tutto l'albero e impostazione delle coordinate reali a partire dalle coordinate locali;
+
+4.
